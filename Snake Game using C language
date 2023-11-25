@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define WIDTH 80
+#define HEIGHT 24
+
+int snakeX, snakeY;
+int snakeDirection;
+int snakeLength;
+int foodX, foodY;
+int score;
+
+void setup() {
+  srand(time(NULL));
+
+  snakeX = WIDTH / 2;
+  snakeY = HEIGHT / 2;
+  snakeDirection = 0;
+  snakeLength = 1;
+
+  foodX = rand() % WIDTH;
+  foodY = rand() % HEIGHT;
+
+  score = 0;
+}
+
+void draw() {
+  int x, y;
+
+  // Draw the boundary
+  for (y = 0; y < HEIGHT; y++) {
+    for (x = 0; x < WIDTH; x++) {
+      if (x == 0 || x == WIDTH - 1 || y == 0 || y == HEIGHT - 1) {
+        printf("*");
+      } else {
+        printf(" ");
+      }
+    }
+    printf("\n");
+  }
+
+  // Draw the snake
+  for (x = 0; x < snakeLength; x++) {
+    printf("@");
+  }
+
+  // Draw the food
+  printf("F");
+
+  // Draw the score
+  printf("\nScore: %d", score);
+}
+
+void update() {
+  int nextX, nextY;
+
+  // Update the snake's position
+  nextX = snakeX;
+  nextY = snakeY;
+
+  if (snakeDirection == 0) {
+    nextX += 1;
+  } else if (snakeDirection == 1) {
+    nextY -= 1;
+  } else if (snakeDirection == 2) {
+    nextX -= 1;
+  } else if (snakeDirection == 3) {
+    nextY += 1;
+  }
+
+  // Check if the snake has eaten the food
+  if (nextX == foodX && nextY == foodY) {
+    foodX = rand() % WIDTH;
+    foodY = rand() % HEIGHT;
+    snakeLength++;
+    score++;
+  }
+
+  // Check if the snake has hit a wall
+  if (nextX < 0 || nextX >= WIDTH || nextY < 0 || nextY >= HEIGHT) {
+    printf("\nGame Over! Score: %d", score);
+    exit(0);
+  }
+
+  // Check if the snake has hit itself
+  int i;
+  for (i = 1; i < snakeLength; i++) {
+    if (nextX == snakeX - i && nextY == snakeY - i) {
+      printf("\nGame Over! Score: %d", score);
+      exit(0);
+    }
+  }
+
+  snakeX = nextX;
+  snakeY = nextY;
+}
+
+int main() {
+  setup();
+
+  while (1) {
+    draw();
+    update();
+
+    // Get input from the user
+    char c = getchar();
+    if (c == 'w') {
+      snakeDirection = 1;
+    } else if (c == 's') {
+      snakeDirection = 3;
+    } else if (c == 'a') {
+      snakeDirection = 2;
+    } else if (c == 'd') {
+      snakeDirection = 0;
+    }
+
+    // Wait for a short period of time
+    system("cls"); // Windows only
+    //printf("\e[1;1H\e[2J"); // Linux and macOS only
+    usleep(100000);
+  }
+
+  return 0;
+}
